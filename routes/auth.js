@@ -94,4 +94,16 @@ router.post('/login', async (req, res) => {
 });
 
 
+const authMiddleware = require('../middleware/auth');
+
+router.get('/me', authMiddleware(), async (req, res) => {
+  const user = await User.findById(req.user.id).select('-password');
+  res.json(user);
+});
+
+
+
+        
+
+
 module.exports = router;
