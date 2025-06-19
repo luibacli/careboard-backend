@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const router = express.Router();
 
-// Ensure to set a strong JWT secret in production via environment variables.
+// Ensure to set a strong JWT secret in production using environment variables (e.g., via a .env file or configuration service).
 
 // Register route
 router.post('/register', async (req, res) => {
@@ -81,6 +81,10 @@ router.post('/login', async (req, res) => {
             return res.status(400).json({ message: 'Invalid email or password' });
         }
 
+        // Ensure JWT secret is defined
+        if (!process.env.JWT_SECRET) {
+            return res.status(500).json({ message: 'JWT secret is not configured on the server.' });
+        }
         // You can generate a JWT token here if needed
         const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
@@ -96,9 +100,17 @@ router.post('/login', async (req, res) => {
 
 const authMiddleware = require('../middleware/auth');
 
+// Get current authenticated user's profile
 router.get('/me', authMiddleware(), async (req, res) => {
-  const user = await User.findById(req.user.id).select('-password');
-  res.json(user);
+  try {
+    const user = await User.findById(req.user.id).select('-password');
+    res.json(user);
+  } catch (error) {
+    if (process.env.NODE_ENV !== 'production') {
+      console.error('Get user error:', error.message);
+    }
+    res.status(500).json({ message: 'Server error' });
+  }
 });
 
 
