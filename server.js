@@ -4,6 +4,7 @@ import mongoose from 'mongoose';
 import cors from 'cors';
 import authRoutes from './routes/auth.js';
 import uploadRoutes from './routes/upload.js';
+import careGroupRoutes from './routes/careGroup.js';
 
 dotenv.config();
 
@@ -28,6 +29,8 @@ mongoose.connect(process.env.MONGODB_URI, {
 app.use('/api/auth', authRoutes);
 
 app.use('/api/upload', uploadRoutes);
+
+app.use('/api/caregroups', careGroupRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
